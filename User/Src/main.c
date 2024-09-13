@@ -74,6 +74,8 @@ int main(void)
 
 	int cnt = 0;
 	/* Infinite loop */
+	static int cnt_2 = 0;
+
 	while (1)
 	{
 		//execute main loop every 100ms
