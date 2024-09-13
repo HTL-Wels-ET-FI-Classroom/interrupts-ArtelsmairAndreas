@@ -73,11 +73,12 @@ int main(void)
 	LCD_DisplayStringAtLineMode(39, "copyright Andreas_Artelsmair", CENTER_MODE);
 
 	int cnt = 0;
-	/* Infinite loop */
 	static int cnt_2 = 0;
 
 
 	HAL_GPIO_Init(GPIOG, cnt_2);
+
+	/* Infinite loop */
 	while (1)
 	{
 		//execute main loop every 100ms
