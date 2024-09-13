@@ -76,6 +76,8 @@ int main(void)
 	/* Infinite loop */
 	static int cnt_2 = 0;
 
+
+	HAL_GPIO_Init(GPIOG, cnt_2);
 	while (1)
 	{
 		//execute main loop every 100ms
