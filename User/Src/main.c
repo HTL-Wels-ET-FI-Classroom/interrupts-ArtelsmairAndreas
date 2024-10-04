@@ -29,6 +29,8 @@
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
 
+static volatile int merker = 0;
+
 /**
  * @brief This function handles System tick timer.
  */
@@ -39,7 +41,12 @@ void SysTick_Handler(void)
 
 //ISR
 void EXTI0_IRQHandler(void){
-__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+	if (merker == 0) {
+		merker = 1;
+	} else {
+		merker = 0;
+	}
 
 }
 
@@ -104,7 +111,9 @@ int main(void)
 		HAL_Delay(100);
 
 		// display timer
-		cnt++;
+		if (merker == 0) {
+			cnt++;
+		}
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(LCD_COLOR_BLUE);
 		LCD_SetPrintPosition(5, 0);
