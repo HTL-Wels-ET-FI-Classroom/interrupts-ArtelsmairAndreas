@@ -31,6 +31,9 @@ static int GetTouchState (int *xCoord, int *yCoord);
 
 static volatile int merker = 0;
 
+static volatile int color_select;
+
+
 /**
  * @brief This function handles System tick timer.
  */
@@ -48,6 +51,12 @@ void EXTI0_IRQHandler(void){
 		merker = 0;
 	}
 
+}
+
+void RCC_IRQHandler(void){
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
+
+	color_select=! color_select;
 }
 
 /**
@@ -89,26 +98,46 @@ int main(void)
 	static int cnt_2 = 0;
 
 	//GPIO (S. 265)
-	GPIO_InitTypeDef butten;
+	GPIO_InitTypeDef user;
 
-	butten.Alternate = 0;
-	butten.Pin = GPIO_PIN_0;
-	butten.Mode = GPIO_MODE_IT_RISING;
-	butten.Speed = GPIO_SPEED_FAST;
-	butten.Pull = GPIO_PULLDOWN;
-	HAL_GPIO_Init(GPIOA, &butten);
+	user.Alternate = 0;
+	user.Pin = GPIO_PIN_0;
+	user.Mode = GPIO_MODE_IT_RISING;
+	user.Speed = GPIO_SPEED_FAST;
+	user.Pull = GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIOA, &user);
 
-	butten.Pin = GPIO_PIN_13;
-	HAL_GPIO_Init(GPIOG, &butten);
+	user.Pin = GPIO_PIN_13;
+	HAL_GPIO_Init(GPIOG, &user);
 
 	//NVIC (S. 368)
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+	//Weiterer Interrupt wird PB4 verwendet
+	GPIO_InitTypeDef color_switch;
+
+	color_switch.Alternate = 0;
+	color_switch.Pin = GPIO_PIN_4;
+	color_switch.Mode = GPIO_MODE_IT_RISING;
+	color_switch.Speed = GPIO_SPEED_FAST;
+	color_switch.Pull = GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIOB, &color_switch);
+
+	color_switch.Pin = GPIO_PIN_4;
+	HAL_GPIO_Init(GPIOG, &color_switch);
+
 
 	/* Infinite loop */
 	while (1)
 	{
 		//execute main loop every 100ms
 		HAL_Delay(100);
+
+		if (color_select == 1) {
+			LCD_SetTextColor(LCD_COLOR_BLUE);
+		}else{
+			LCD_SetTextColor(LCD_COLOR_GRAY);
+		}
 
 		// display timer
 		if (merker == 0) {
