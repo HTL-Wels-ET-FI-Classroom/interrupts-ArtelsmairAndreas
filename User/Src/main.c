@@ -37,6 +37,12 @@ void SysTick_Handler(void)
 	HAL_IncTick();
 }
 
+//ISR
+void EXTI0_IRQHandler(void){
+__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+
+}
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -75,18 +81,21 @@ int main(void)
 	int cnt = 0;
 	static int cnt_2 = 0;
 
+	//GPIO (S. 265)
 	GPIO_InitTypeDef butten;
 
 	butten.Alternate = 0;
 	butten.Pin = GPIO_PIN_0;
 	butten.Mode = GPIO_MODE_IT_RISING;
 	butten.Speed = GPIO_SPEED_FAST;
-	butten.Pull = GPIO_PULLUP;
+	butten.Pull = GPIO_PULLDOWN;
 	HAL_GPIO_Init(GPIOA, &butten);
 
 	butten.Pin = GPIO_PIN_13;
 	HAL_GPIO_Init(GPIOG, &butten);
 
+	//NVIC (S. 368)
+	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 	/* Infinite loop */
 	while (1)
