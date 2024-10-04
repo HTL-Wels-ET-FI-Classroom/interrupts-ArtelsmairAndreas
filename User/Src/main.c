@@ -75,8 +75,18 @@ int main(void)
 	int cnt = 0;
 	static int cnt_2 = 0;
 
+	GPIO_InitTypeDef butten;
 
-	HAL_GPIO_Init(GPIOG, cnt_2);
+	butten.Alternate = 0;
+	butten.Pin = GPIO_PIN_0;
+	butten.Mode = GPIO_MODE_IT_RISING;
+	butten.Speed = GPIO_SPEED_FAST;
+	butten.Pull = GPIO_PULLUP;
+	HAL_GPIO_Init(GPIOA, &butten);
+
+	butten.Pin = GPIO_PIN_13;
+	HAL_GPIO_Init(GPIOG, &butten);
+
 
 	/* Infinite loop */
 	while (1)
