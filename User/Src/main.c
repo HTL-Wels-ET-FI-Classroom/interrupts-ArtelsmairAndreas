@@ -29,9 +29,9 @@
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
 
-static volatile int merker = 0;
+static volatile int switch_timer = 0;
 
-static volatile int color_select;
+static volatile int color_select = 0;
 
 
 /**
@@ -45,10 +45,10 @@ void SysTick_Handler(void)
 //ISR
 void EXTI0_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-	if (merker == 0) {
-		merker = 1;
+	if (switch_timer == 0) {
+		switch_timer = 1;
 	} else {
-		merker = 0;
+		switch_timer = 0;
 	}
 
 }
@@ -94,7 +94,8 @@ int main(void)
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
 	LCD_DisplayStringAtLineMode(39, "copyright Andreas_Artelsmair", CENTER_MODE);
 
-	int cnt = 0;
+	int cnt1 = 0;
+	int cnt2 = 0;
 	static int cnt_2 = 0;
 
 	//GPIO (S. 265)
@@ -140,13 +141,18 @@ int main(void)
 		}
 
 		// display timer
-		if (merker == 0) {
-			cnt++;
+		if (switch_timer == 0) {
+			cnt1++;
+		}else{
+			cnt2++;
 		}
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(LCD_COLOR_BLUE);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer: %.1f", cnt/10.0);
+		printf("   Timer: %.1f", cnt1/10.0);
+
+		LCD_SetPrintPosition(7, 0);
+		printf("   Timer: %.1f", cnt2/10.0);
 
 		// test touch interface
 		int x, y;
