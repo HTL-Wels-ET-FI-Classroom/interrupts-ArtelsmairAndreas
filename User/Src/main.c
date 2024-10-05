@@ -29,7 +29,7 @@
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
 
-static volatile int switch_timer = 0;
+static volatile int timer_switch = 0;
 
 static volatile int color_select = 0;
 
@@ -45,10 +45,10 @@ void SysTick_Handler(void)
 //ISR
 void EXTI0_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
-	if (switch_timer == 0) {
-		switch_timer = 1;
+	if (timer_switch == 0) {
+		timer_switch = 1;
 	} else {
-		switch_timer = 0;
+		timer_switch = 0;
 	}
 
 }
@@ -141,7 +141,7 @@ int main(void)
 		}
 
 		// display timer
-		if (switch_timer == 0) {
+		if (timer_switch == 0) {
 			cnt1++;
 		}else{
 			cnt2++;
