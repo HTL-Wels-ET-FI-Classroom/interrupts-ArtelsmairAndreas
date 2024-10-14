@@ -134,7 +134,7 @@ int main(void)
 
 	while (1)
 	{
-		//execute main loop every 100ms
+		//execute main loop every 1ms
 
 		if (color_select == 0) {
 			farbe = LCD_COLOR_BLUE;
