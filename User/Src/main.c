@@ -40,11 +40,12 @@ static int GetTouchState (int *xCoord, int *yCoord);
 /**
  * @brief This function handles System tick timer.
  */
+
 void SysTick_Handler(void){
 	HAL_IncTick();
 	if(timer_switch == 0){
 		cnt1 ++;
-	}else if(timer_switch == 1){
+	} else if(timer_switch == 1){
 		cnt2 ++;
 	}
 }
@@ -57,9 +58,9 @@ void EXTI0_IRQHandler(void){
 	} else if (timer_switch == 1){
 		timer_switch = 0;
 	}
-
 }
 
+//ISR
 void EXTI4_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
 
@@ -111,9 +112,6 @@ int main(void)
 	user.Pull = GPIO_PULLDOWN;
 	HAL_GPIO_Init(GPIOA, &user);
 
-	//user.Pin = GPIO_PIN_13;
-	//HAL_GPIO_Init(GPIOG, &user);
-
 	//NVIC (S. 368)
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
@@ -127,11 +125,8 @@ int main(void)
 	color_switch.Pull = GPIO_PULLUP;
 	HAL_GPIO_Init(GPIOB, &color_switch);
 
+	//NVIC (S. 368)
 	HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-
-	//color_switch.Pin = GPIO_PIN_4;
-	//HAL_GPIO_Init(GPIOB, &color_switch);
-
 
 	/* Infinite loop */
 
@@ -148,7 +143,6 @@ int main(void)
 		}
 
 		// display timer
-
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(farbe);
 		LCD_SetPrintPosition(5, 0);
@@ -156,13 +150,6 @@ int main(void)
 
 		LCD_SetPrintPosition(7, 0);
 		printf("   Timer2: %.1f", cnt2/1000.0);
-
-		// test touch interface
-		int x, y;
-		if (GetTouchState(&x, &y)) {
-			LCD_FillCircle(x, y, 5);
-		}
-
 
 	}
 }
@@ -200,5 +187,3 @@ static int GetTouchState (int* xCoord, int* yCoord) {
 
 	return touchclick;
 }
-
-
