@@ -25,21 +25,28 @@
 
 /* Private variables ---------------------------------------------------------*/
 
-/* Private function prototypes -----------------------------------------------*/
-static int GetUserButtonPressed(void);
-static int GetTouchState (int *xCoord, int *yCoord);
-
 static volatile int timer_switch = 0;
 
 static volatile int color_select = 0;
 
+static volatile int cnt1 = 0;
+
+static volatile int cnt2 = 0;
+
+/* Private function prototypes -----------------------------------------------*/
+static int GetUserButtonPressed(void);
+static int GetTouchState (int *xCoord, int *yCoord);
 
 /**
  * @brief This function handles System tick timer.
  */
-void SysTick_Handler(void)
-{
+void SysTick_Handler(void){
 	HAL_IncTick();
+	if(timer_switch == 0){
+		cnt1 ++;
+	}else if(timer_switch == 1){
+		cnt2 ++;
+	}
 }
 
 //ISR
@@ -47,13 +54,13 @@ void EXTI0_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
 	if (timer_switch == 0) {
 		timer_switch = 1;
-	} else {
+	} else if (timer_switch == 1){
 		timer_switch = 0;
 	}
 
 }
 
-void RCC_IRQHandler(void){
+void EXTI4_IRQHandler(void){
 	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_4);
 
 	color_select=! color_select;
@@ -94,10 +101,6 @@ int main(void)
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
 	LCD_DisplayStringAtLineMode(39, "copyright Andreas_Artelsmair", CENTER_MODE);
 
-	int cnt1 = 0;
-	int cnt2 = 0;
-	static int cnt_2 = 0;
-
 	//GPIO (S. 265)
 	GPIO_InitTypeDef user;
 
@@ -108,8 +111,8 @@ int main(void)
 	user.Pull = GPIO_PULLDOWN;
 	HAL_GPIO_Init(GPIOA, &user);
 
-	user.Pin = GPIO_PIN_13;
-	HAL_GPIO_Init(GPIOG, &user);
+	//user.Pin = GPIO_PIN_13;
+	//HAL_GPIO_Init(GPIOG, &user);
 
 	//NVIC (S. 368)
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
@@ -121,38 +124,38 @@ int main(void)
 	color_switch.Pin = GPIO_PIN_4;
 	color_switch.Mode = GPIO_MODE_IT_RISING;
 	color_switch.Speed = GPIO_SPEED_FAST;
-	color_switch.Pull = GPIO_PULLDOWN;
+	color_switch.Pull = GPIO_PULLUP;
 	HAL_GPIO_Init(GPIOB, &color_switch);
 
-	color_switch.Pin = GPIO_PIN_4;
-	HAL_GPIO_Init(GPIOG, &color_switch);
+	HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+	//color_switch.Pin = GPIO_PIN_4;
+	//HAL_GPIO_Init(GPIOB, &color_switch);
 
 
 	/* Infinite loop */
+
+	int farbe = LCD_COLOR_BLUE;
+
 	while (1)
 	{
 		//execute main loop every 100ms
-		HAL_Delay(100);
 
-		if (color_select == 1) {
-			LCD_SetTextColor(LCD_COLOR_BLUE);
-		}else{
-			LCD_SetTextColor(LCD_COLOR_GRAY);
+		if (color_select == 0) {
+			farbe = LCD_COLOR_BLUE;
+		} else if (color_select == 1) {
+			farbe = LCD_COLOR_GRAY;
 		}
 
 		// display timer
-		if (timer_switch == 0) {
-			cnt1++;
-		}else{
-			cnt2++;
-		}
+
 		LCD_SetFont(&Font20);
-		LCD_SetTextColor(LCD_COLOR_BLUE);
+		LCD_SetTextColor(farbe);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer: %.1f", cnt1/10.0);
+		printf("   Timer1: %.1f", cnt1/1000.0);
 
 		LCD_SetPrintPosition(7, 0);
-		printf("   Timer: %.1f", cnt2/10.0);
+		printf("   Timer2: %.1f", cnt2/1000.0);
 
 		// test touch interface
 		int x, y;
